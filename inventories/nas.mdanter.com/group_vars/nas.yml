@@ -9,13 +9,94 @@
 # Add your all.yml config overrides to this file. See group_vars/all.yml for all possible settings.
 
 # Example options
-ansible_nas_hostname: nas.mdanter.com
+ansible_nas_hostname: nas
 ansible_nas_timezone: America/Denver
+ansible_nas_user: mdanter
+ansible_nas_email: mdanter@gmail.com
+ansible_nas_domain: mdanter.com
+
 
 ## Enable some applications
-heimdall_enabled: true
 glances_enabled: true
-stats_enabled: true
 nextcloud_enabled: true
-timemachine_enabled: true
+timemachine_enabled: true 
 
+nextcloud_data_directory: "/mnt/raid24/public/nextcloud"
+samba_shares_root: /mnt/raid24/public
+nfs_shares_root: /mnt/
+
+###
+### Time Machine
+###
+timemachine_data_directory: "/mnt/raid24/timemachine"
+timemachine_volume_size_limit: "0"
+timemachine_password: TimeMachine2020
+timemachine_share_name: Data
+timemachine_log_level: error
+timemachine_port: "10445"
+
+###
+### NFS
+###
+# Data you want published over NFS. More info on the NFS config format can be found at
+# https://help.ubuntu.com/community/SettingUpNFSHowTo#Shares
+# WARNING: Weird things might happen if you share the same data over Samba and NFS and allow writes on both!
+
+nfs_shares_root: /mnt/
+
+nfs_exports:
+  - "{{ nfs_shares_root }}/raid24/vms *(rw,sync,no_root_squash)"
+  - "{{ nfs_shares_root }}/raid3/libs *(rw,sync,no_root_squash)"
+  - "{{ nfs_shares_root }}/raid24/public *(rw,sync,no_root_squash)"
+  
+
+
+###
+### Samba
+###
+# Seems to break browsing of the \\server-name shares root when enabled
+samba_mitigate_cve_2017_7494: false
+
+# Enable apple exentensions for compatibility with apple clients
+samba_apple_extensions: yes
+
+# How Samba behaves when an unknown user connects, see Samba docs for more info
+samba_map_to_guest: Bad Password
+
+# The NetBIOS hostname used by Samba on your network
+samba_netbios_name: "{{ ansible_nas_hostname }}"
+
+samba_shares_root: /mnt/raid24/public
+
+photos_root: "{{ samba_shares_root }}/photos"
+music_root: "{{ samba_shares_root }}/music"
+movies_root: "{{ samba_shares_root }}/videos"
+
+# The description that'll appear next to your Ansible-NAS box when browsing your network
+samba_server_string: NAS
+
+# Shares you want published over Samba.
+samba_shares:
+  - name: videos 
+    comment: 'Movies'
+    guest_ok: yes
+    public: yes
+    writable: yes
+    browsable: yes
+    path: "{{ movies_root }}"
+
+  - name: music
+    comment: 'Music'
+    guest_ok: yes
+    public: yes
+    writable: yes
+    browsable: yes
+    path: "{{ music_root }}"
+
+  - name: photos
+    comment: 'Pictures'
+    guest_ok: yes
+    public: yes
+    writable: yes
+    browsable: yes
+    path: "{{ samba_shares_root }}/photos"
