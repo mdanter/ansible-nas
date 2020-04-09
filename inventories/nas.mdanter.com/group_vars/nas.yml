@@ -17,9 +17,26 @@ ansible_nas_domain: mdanter.com
 
 
 ## Enable some applications
+heimdall_enabled: true
+#heimdall_available_externally: true
+
+calibre_enabled: true
+#calibre_available_externally: "true"
+
+traefik_enabled: true
+traefik_port_http: "80"
+traefik_port_https: "443"
+traefik_port_ui: "8083"
+
 glances_enabled: true
+#glances_available_externally: "true"
+
 nextcloud_enabled: true
+#nextcloud_available_externally: "true"
+
 timemachine_enabled: true 
+
+docker_home: /mnt/raid24/docker
 
 nextcloud_data_directory: "/mnt/raid24/public/nextcloud"
 samba_shares_root: /mnt/raid24/public
@@ -29,7 +46,7 @@ nfs_shares_root: /mnt/
 ### Time Machine
 ###
 timemachine_data_directory: "/mnt/raid24/timemachine"
-timemachine_volume_size_limit: "0"
+timemachine_volume_size_limit: "4194304"
 timemachine_password: TimeMachine2020
 timemachine_share_name: Data
 timemachine_log_level: error
@@ -71,6 +88,7 @@ samba_shares_root: /mnt/raid24/public
 photos_root: "{{ samba_shares_root }}/photos"
 music_root: "{{ samba_shares_root }}/music"
 movies_root: "{{ samba_shares_root }}/videos"
+books_root: "{{ samba_shares_root }}/books"
 
 # The description that'll appear next to your Ansible-NAS box when browsing your network
 samba_server_string: NAS
@@ -100,3 +118,13 @@ samba_shares:
     writable: yes
     browsable: yes
     path: "{{ samba_shares_root }}/photos"
+
+  - name: books
+    comment: 'Books'
+    guest_ok: yes
+    public: yes
+    writable: yes
+    browsable: yes
+    path: "{{ samba_shares_root }}/books"
+
+
